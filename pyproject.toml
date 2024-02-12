@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "lsorm"
+version = "0.1.0"
+description = "LimeSurvey ORM (lsorm) - An ORM package for LimeSurvey using SQLAlchemy"
+authors = ["Viktor Sandström <sandstromviktor @ github>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+SQLAlchemy = "^2.0.25"
+PyYaml = "6.0.1"
+pymysql = "1.1.0"
+
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2"
+
+[build-system]
+requires = ["poetry-core>=1.7.0"]
+build-backend = "poetry.core.masonry.api"
