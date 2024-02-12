@@ -1,6 +1,6 @@
-from lsorm import models, Session
+from lsorm import Session, models
 
-Session.configure(source = "Settings")
+Session.configure(source="Settings")
 
 question = models.Question
 

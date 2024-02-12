@@ -1,6 +1,5 @@
 import os
 
-
 DB_TYPE = "mysql+pymysql"
 DB_USERNAME = "isoposso"  # os.getenv('DB_USERNAME', username)
 DB_PASSWORD = "secret"  # os.getenv('DB_PASSWORD', password)
