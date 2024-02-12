@@ -1,2 +1,4 @@
-# lsorm
-Object relational mapper (ORM) for LimeSurvey
+# LimeSurvey Object Relational Mapper (lsorm)
+
+## 
+This project is a work in progress
