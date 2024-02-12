@@ -708,6 +708,7 @@ class Quota(Base):
     )
 
 
+# TODO: Add typing from here
 class QuotaLanguagesetting(Base):
     __tablename__ = f"{PREFIX}_quota_languagesettings"
 
