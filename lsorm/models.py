@@ -1,5 +1,5 @@
 from typing import Any, Optional, Type
-
+import pandas as pd
 from sqlalchemy import (
     Boolean,
     DateTime,
@@ -29,6 +29,27 @@ class Base(DeclarativeBase):
     @classmethod
     def get(cls, pk):
         return Session.get(cls, pk)
+    
+    
+    @classmethod
+    def get_column(cls, column_name):
+        # Check if the column name is valid
+        if column_name not in cls.columns():
+            raise ValueError(f"Invalid column name: {column_name}")
+
+        # Query the column and return a list of values
+        return Session.query(getattr(cls, column_name)).all()
+
+    def get_columns(self, keys:list):
+        result = []
+        for key in keys:
+            result.append(getattr(self, key, None))
+        return result
+    
+    @classmethod
+    def to_dataframe(cls):
+        records = cls.objects.all()
+        return pd.DataFrame([{key: value for key, value in record.__dict__.items() if not key.startswith('_')} for record in records])
 
 
 class ClassFactory:
