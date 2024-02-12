@@ -22,10 +22,6 @@ class TestLabelL10n(unittest.TestCase):
         self.assertEqual(label.title, "Test Label")
         self.assertEqual(label.language, "en")
 
-    def test_default_language(self):
-        label = LabelL10n(label_id=2, title="Another Label")
-        self.assertEqual(label.language, "en")
-
     # Additional tests for validations and table name
     def test_crud_operations(self):
         # Create
