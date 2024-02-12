@@ -5,7 +5,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 class SessionMaker(sessionmaker):
     def configure(self, **kwargs):
         engine = None
-        source = kwargs.pop("source", None)
+        source = kwargs.pop("source", "")
 
         # Decide the order based on the 'source' argument
         if source.lower() in ("settings", "settings_file"):
@@ -66,9 +66,8 @@ class SessionMaker(sessionmaker):
         """
         Specify config_file path
         """
+        import yaml
         try:
-            import yaml
-
             config_file = kwargs.get("config_file")
             with open(config_file, "r") as file:
                 config = yaml.safe_load(file)

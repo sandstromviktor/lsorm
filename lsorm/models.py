@@ -40,7 +40,7 @@ class ClassFactory:
         """
         Users = create_user_class(239779)
         """
-        if table == "users":
+        if table.lower() in ("users", "u", "participant", "participants"):
             table_name = f"{PREFIX}_tokens_{self.sid}"
             base_class: Type[Any] = self.base_class
 
@@ -64,11 +64,11 @@ class ClassFactory:
 
             return Users
 
-        elif table == "answers":
+        elif table.lower() in ("answers", "answer", "a", "reponse", "repsonses"):
             table_name = f"iso_survey_{self.sid}"
 
             Base = automap_base(declarative_base=self.base_class)
-            Base.prepare()
+            Base.prepare(autoload_with=Session.get_bind())
 
             survey_cls = getattr(Base.classes, table_name)
             survey_cls.objects = Session.query_property()

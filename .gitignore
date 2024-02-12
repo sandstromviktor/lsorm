@@ -1,7 +1,4 @@
-# About Studio (Django)
-certs
-cluster.conf
-tmp
+settings.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -119,3 +116,7 @@ dmypy.json
 
 .DS_Store
 .idea/
+
+
+
+.vscode
