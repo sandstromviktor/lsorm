@@ -9,9 +9,10 @@ from lsorm.models import Answer, AnswerL10n, Base
 class TestAnswerL10n(unittest.TestCase):
     def setUp(self):
         # Setup code for creating a database session
-        engine = create_engine("sqlite:///:memory:", echo=False)
+        engine = create_engine('sqlite://', echo=False)
         Session = sessionmaker(bind=engine)
         self.session = Session()
+        Base.metadata.drop_all(engine)
         Base.metadata.create_all(engine)
         # Creating a test instance of AnswerL10n
         self.instance = AnswerL10n(id=1, aid=1, answer="test", language="en")

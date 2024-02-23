@@ -20,9 +20,6 @@ responses = class_factory.create_class("answers")
 
 specific_column = "757291X16X48B02"
 
-specific_column_object = responses.objects.filter(responses.token == user.token).first()
-
-specific_column_object.get_columns(specific_column_object.columns()[:10])
-
-
-getattr(specific_column_object, specific_column)
+specific_column_object = responses.objects.filter(responses.token == users.get(2).token).first()
+column_subset = specific_column_object.columns()[:10]
+specific_column_object.get_columns(column_subset)

@@ -21,7 +21,7 @@ PREFIX = settings.PREFIX
 
 class Base(DeclarativeBase):
     objects = Session.query_property()
-
+    
     @classmethod
     def columns(cls):
         return cls.__table__.columns.keys()
@@ -53,9 +53,10 @@ class Base(DeclarativeBase):
 
 
 class ClassFactory:
-    def __init__(self, sid: int, base_class: Type[Base]):
+    def __init__(self, sid: int, base_class: Type[Base], session=Session):
         self.sid: int = sid
         self.base_class: Type[Base] = base_class
+        self.session = session
 
     def create_class(self, table: str) -> Any:
         """
@@ -85,11 +86,11 @@ class ClassFactory:
 
             return Users
 
-        elif table.lower() in ("answers", "answer", "a", "reponse", "repsonses"):
-            table_name = f"iso_survey_{self.sid}"
+        elif table.lower() in ("answers", "answer", "a", "response", "responses"):
+            table_name = f"{PREFIX}_survey_{self.sid}"
 
             Base = automap_base(declarative_base=self.base_class)
-            Base.prepare(autoload_with=Session.get_bind())
+            Base.prepare(autoload_with=self.session.get_bind())
 
             survey_cls = getattr(Base.classes, table_name)
             survey_cls.objects = Session.query_property()
@@ -97,7 +98,7 @@ class ClassFactory:
             return survey_cls
 
         else:
-            raise Exception("Type not valid")
+            raise TypeError("Type not valid")
 
 
 class AnswerL10n(Base):
