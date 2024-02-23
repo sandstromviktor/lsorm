@@ -47,4 +47,4 @@ jobs:
     - name: Run the automated tests (for example)
       run: |
         cp settings.example.py settings.py
-        poetry run pytest -n auto -v 
+        poetry run pytest -v 
