@@ -1,12 +1,13 @@
 import pytest
-from sqlalchemy.orm import sessionmaker, scoped_session
-from lsorm.models import Base, Label, LabelL10n
-from tests import engine
+from sqlalchemy.orm import scoped_session, sessionmaker
+
+from lsorm.models import Label, LabelL10n
+from tests import engine as engine
+
 
 # Fixture for the session, new for each test function
 @pytest.fixture(scope="function")
 def session(engine):
-    
     Label.metadata.create_all(engine)
     LabelL10n.metadata.create_all(engine)
 
@@ -14,7 +15,7 @@ def session(engine):
     Session = scoped_session(session_factory)
 
     yield Session()
-    
+
     Session.remove()
 
 
@@ -32,27 +33,21 @@ def test_labell10n_crud_operations(session):
     session.commit()
 
     # Read
-    read_label = (
-        session.query(LabelL10n).filter_by(label_id=1).first()
-    )
+    read_label = session.query(LabelL10n).filter_by(label_id=1).first()
     assert read_label.title == "Test Label"
     assert read_label.language == "en"
 
     # Update
     read_label.title = "Updated Label"
     session.commit()
-    updated_label = (
-        session.query(LabelL10n).filter_by(label_id=1).first()
-    )
+    updated_label = session.query(LabelL10n).filter_by(label_id=1).first()
     assert updated_label.title == "Updated Label"
 
     # Delete
     session.delete(updated_label)
     session.commit()
-    deleted_label = (
-        session.query(LabelL10n).filter_by(label_id=1).first()
-    )
-    assert deleted_label == None
+    deleted_label = session.query(LabelL10n).filter_by(label_id=1).first()
+    assert deleted_label is None
 
 
 def test_label_instance_creation():
@@ -61,6 +56,7 @@ def test_label_instance_creation():
     assert label.lid == 1
     assert label.code == "T"
     assert label.assessment_value == 2
+
 
 # Additional tests for validations and table name
 def test_crud_operations(session):
@@ -86,4 +82,4 @@ def test_crud_operations(session):
     session.delete(updated_label)
     session.commit()
     deleted_label = session.query(Label).filter_by(id=1).first()
-    assert deleted_label == None
+    assert deleted_label is None

@@ -1,4 +1,5 @@
 from typing import Any, Optional, Type
+
 import pandas as pd
 from sqlalchemy import (
     Boolean,
@@ -21,7 +22,7 @@ PREFIX = settings.PREFIX
 
 class Base(DeclarativeBase):
     objects = Session.query_property()
-    
+
     @classmethod
     def columns(cls):
         return cls.__table__.columns.keys()
@@ -29,8 +30,7 @@ class Base(DeclarativeBase):
     @classmethod
     def get(cls, pk):
         return Session.get(cls, pk)
-    
-    
+
     @classmethod
     def get_column(cls, column_name):
         # Check if the column name is valid
@@ -40,16 +40,25 @@ class Base(DeclarativeBase):
         # Query the column and return a list of values
         return Session.query(getattr(cls, column_name)).all()
 
-    def get_columns(self, keys:list):
+    def get_columns(self, keys: list):
         result = []
         for key in keys:
             result.append(getattr(self, key, None))
         return result
-    
+
     @classmethod
     def to_dataframe(cls):
         records = cls.objects.all()
-        return pd.DataFrame([{key: value for key, value in record.__dict__.items() if not key.startswith('_')} for record in records])
+        return pd.DataFrame(
+            [
+                {
+                    key: value
+                    for key, value in record.__dict__.items()
+                    if not key.startswith("_")
+                }
+                for record in records
+            ]
+        )
 
 
 class ClassFactory:
@@ -86,7 +95,13 @@ class ClassFactory:
 
             return Users
 
-        elif table.lower() in ("answers", "answer", "a", "response", "responses"):
+        elif table.lower() in (
+            "answers",
+            "answer",
+            "a",
+            "response",
+            "responses",
+        ):
             table_name = f"{PREFIX}_survey_{self.sid}"
 
             Base = automap_base(declarative_base=self.base_class)

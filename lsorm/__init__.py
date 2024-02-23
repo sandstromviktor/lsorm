@@ -67,6 +67,7 @@ class SessionMaker(sessionmaker):
         Specify config_file path
         """
         import yaml
+
         try:
             config_file = kwargs.get("config_file")
             with open(config_file, "r") as file:
