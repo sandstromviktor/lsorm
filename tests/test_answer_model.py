@@ -1,99 +1,114 @@
-import unittest
-
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
+import pytest
+from sqlalchemy.orm import sessionmaker, scoped_session
 from lsorm.models import Answer, AnswerL10n, Base
 
+from tests import engine
 
-class TestAnswerL10n(unittest.TestCase):
-    def setUp(self):
-        # Setup code for creating a database session
-        engine = create_engine('sqlite://', echo=False)
-        Session = sessionmaker(bind=engine)
-        self.session = Session()
-        Base.metadata.drop_all(engine)
-        Base.metadata.create_all(engine)
-        # Creating a test instance of AnswerL10n
-        self.instance = AnswerL10n(id=1, aid=1, answer="test", language="en")
-        self.session.add(self.instance)
-        self.session.commit()
+# Fixture for the session, new for each test function
+@pytest.fixture(scope="function")
+def session(engine):
+    
+    Answer.metadata.create_all(engine)
+    AnswerL10n.metadata.create_all(engine)
 
-    def tearDown(self):
-        # Teardown code for closing the session
-        self.session.close()
+    session_factory = sessionmaker(bind=engine)
+    Session = scoped_session(session_factory)
 
-    def test_create_answerl10n(self):
-        # Test for creating a AnswerL10n instance
-        self.assertIsNotNone(self.instance.id)
+    yield Session()
+    
+    Session.remove()
 
-    def test_read_answerl10n(self):
-        # Test for reading a AnswerL10n instance
-        instance = self.session.get(AnswerL10n, self.instance.id)
-        self.assertIsNotNone(instance)
-
-    def test_update_answerl10n(self):
-        # Test for updating a AnswerL10n instance
-        self.instance.language = "sv"
-        self.session.commit()
-        updated_instance = self.session.get(AnswerL10n, self.instance.id)
-
-        self.assertEqual(updated_instance.language, "sv")
-
-    def test_delete_answerl10n(self):
-        # Test for deleting a AnswerL10n instance
-        self.session.delete(self.instance)
-        self.session.commit()
-        deleted_instance = self.session.get(AnswerL10n, self.instance.id)
-        self.assertIsNone(deleted_instance)
+def test_answerl10n_creation():
+    answer = AnswerL10n(id=1, aid=2, answer="Test Answer", language="en")
+    assert answer.id == 1
+    assert answer.aid == 2
+    assert answer.answer == "Test Answer"
+    assert answer.language == "en"
 
 
-class TestAnswer(unittest.TestCase):
-    def setUp(self):
-        # Setup code for creating a database session
-        engine = create_engine("sqlite:///:memory:", echo=False)
-        Session = sessionmaker(bind=engine)
-        self.session = Session()
-        Base.metadata.create_all(engine)
-        # Creating a test instance of Answer
-        self.instance = Answer(
-            aid=1,
-            qid=1,
-            code="T",
-            sortorder=1,
-            assessment_value=2,
-            scale_id=None,
-        )
-        self.session.add(self.instance)
-        self.session.commit()
+def test_answerl10n_crud_operations(session):
+    # Create
+    answer = AnswerL10n(id=1, aid=2, answer="Test Answer", language="en")
+    session.add(answer)
+    session.commit()
 
-    def tearDown(self):
-        # Teardown code for closing the session
-        self.session.close()
+    # Read
+    read_answer = (
+        session.query(AnswerL10n).filter_by(id=1, aid=2).first()
+    )
+    assert read_answer.answer == "Test Answer"
+    assert read_answer.language == "en"
 
-    def test_create_answer(self):
-        # Test for creating a Answer instance
-        self.assertIsNotNone(self.instance.aid)
+    # Update
+    read_answer.answer = "Updated Answer"
+    read_answer.aid = 3
+    session.commit()
+    updated_answer = (
+        session.query(AnswerL10n).filter_by(id=1, aid=3).first()
+    )
+    assert updated_answer.answer == "Updated Answer"
 
-    def test_read_answer(self):
-        # Test for reading a Answer instance
-        instance = self.session.get(Answer, self.instance.aid)
-        self.assertIsNotNone(instance)
-
-    def test_update_answer(self):
-        # Test for updating a Answer instance
-        self.instance.assessment_value = 1
-        self.session.commit()
-        updated_instance = self.session.get(Answer, self.instance.aid)
-        self.assertEqual(updated_instance.assessment_value, 1)
-
-    def test_delete_answer(self):
-        # Test for deleting a Answer instance
-        self.session.delete(self.instance)
-        self.session.commit()
-        deleted_instance = self.session.get(Answer, self.instance.aid)
-        self.assertIsNone(deleted_instance)
+    # Delete
+    session.delete(updated_answer)
+    session.commit()
+    deleted_answer = (
+        session.query(AnswerL10n).filter_by(id=1).first()
+    )
+    assert deleted_answer == None
 
 
-if __name__ == "__main__":
-    unittest.main()
+def test_answerl10n_non_nullable_field(session):
+    # Try to create AnswerL10n object with a non-nullable field being null
+    with pytest.raises(Exception):
+        answer = AnswerL10n(id=1, aid=2, answer=None, language="en")
+        session.add(answer)
+        session.commit()
+        
+        
+
+def test_answer_creation():
+    answer = Answer(aid=1, qid=2, code="abcde", sortorder=1)
+    assert answer.aid == 1
+    assert answer.qid == 2
+    assert answer.code == "abcde"
+    assert answer.sortorder == 1
+
+
+def test_answer_crud_operations(session):
+    # Create
+    answer = Answer(aid=1, qid=2, code="abcde", sortorder=1)
+    session.add(answer)
+    session.commit()
+
+    # Read
+    read_answer = (
+        session.query(Answer).filter_by(aid=1, qid=2).first()
+    )
+    assert read_answer.code == "abcde"
+    assert read_answer.assessment_value == 0
+    assert read_answer.scale_id == 0
+
+    # Update
+    read_answer.code = "ABCDE"
+    read_answer.qid = 3
+    session.commit()
+    updated_answer = (
+        session.query(Answer).filter_by(aid=1, qid=3).first()
+    )
+    assert updated_answer.code == "ABCDE"
+
+    # Delete
+    session.delete(updated_answer)
+    session.commit()
+    deleted_answer = (
+        session.query(Answer).filter_by(aid=1, qid=3).first()
+    )
+    assert deleted_answer == None
+
+
+def test_answer_non_nullable_field(session):
+    # Try to create AnswerL10n object with a non-nullable field being null
+    with pytest.raises(Exception):
+        answer = Answer(aid=1, qid=2, code=None, sortorder=1)
+        session.add(answer)
+        session.commit()
