@@ -2,9 +2,7 @@ import pytest
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 from lsorm.models import Answer, AnswerL10n
-from tests import engine
-
-engine = engine
+from tests import engine as engine
 
 
 # Fixture for the session, new for each test function
